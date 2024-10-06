@@ -1,0 +1,55 @@
+# config/examples/config.yaml
+# ---------------------------
+#
+# This file contains the configuration for the backup script that will be consumed when
+# running the backup script.
+#
+# Note that, to keep sensitive information secure, it is recommended to use environment variables
+# to store sensitive information such as database passwords. This can be done by using the following
+# syntax in the yaml file: ${ENV_VAR_NAME}. For example, if you have a database password stored in
+# an environment variable called DATABASE_PASSWORD, you can use the following syntax in the yaml file:
+# password: "${DATABASE_PASSWORD}", the backup application will read these environment variables and
+# replace them with the actual values when running the backup script.
+
+name: develop
+enabled: true
+
+vaults:
+  - interface: interfaces.vault.azure.AzureKeyVaultInterface
+    secrets:
+      AZURE_BLOB_STORAGE_KEY: azure-blob-storage-key
+    url: https://iris-sfi-backups-keys.vault.azure.net/
+
+storage:
+  interface: interfaces.storage.local.LocalStorageInterface
+  storage_account: irissfibackups
+  storage_container: iris-sfi-testing-backups
+  storage_key: ${AZURE_BLOB_STORAGE_KEY}
+
+interfaces:
+  - interface: interfaces.directories.ssh.SSHDirectoryBackupInterface
+    enabled: true
+    directories:
+      - src: /home/www/app
+        dest: directories
+        name: app
+        exclude:
+          - /home/www/app/uploads
+          - /home/www/app/locale
+          - /home/www/app/locale_overrides
+        retention:
+          count: 7
+      - src: /home/www/app/locale_overrides
+        dest: directories
+        name: locale_overrides
+        retention:
+          count: 7
+      - src: /home/www/uploads
+        dest: directories
+        name: uploads
+        retention:
+          count: 7
+    ssh_host: testing.strongestfamilies.com
+    ssh_username: sheepdog
+    ssh_private_key: C:/Users/brett/.ssh/id_rsa
+    ssh_port: 22

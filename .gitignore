@@ -1,0 +1,12 @@
+.env
+.coverage
+.idea/
+htmlcov/
+logs/
+docs/
+build/
+__pycache__/
+*.egg-info
+*.pyc
+*.pyo
+*.pyd
